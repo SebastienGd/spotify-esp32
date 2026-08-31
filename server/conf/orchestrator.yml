@@ -1,0 +1,22 @@
+model_name: scrfd_2.5g_bnkps.onnx
+
+display:
+  display_width: 128
+  display_height: 64
+  face_width: 64
+  face_height: 64
+  playback_width: 64
+  playback_height: 64
+  scroll_spacer: " "
+
+spotify:
+  client_id: ${oc.env:SPOTIFY_CLIENT_ID}
+  api_key: ${oc.env:SPOTIFY_API_KEY}
+  access_token: ${oc.env:SPOTIFY_ACCESS_TOKEN}
+  refresh_token: ${oc.env:SPOTIFY_REFRESH_TOKEN,}
+
+  scopes:
+    - user-read-playback-state
+    - user-read-currently-playing
+
+callback_url: http://127.0.0.1:8000/callback

@@ -1,0 +1,12 @@
+fastapi
+# fastapi["standard"]
+dotenv
+httpx
+onnxruntime 
+numpy
+opencv-python-headless
+pathlib
+insightface
+pillow
+omegaconf
+ruff

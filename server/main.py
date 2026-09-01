@@ -1,3 +1,4 @@
+import asyncio
 from logging import INFO, basicConfig, getLogger
 
 from dotenv import load_dotenv
@@ -39,4 +40,11 @@ async def callback(code: str = Query(...)):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     orchestrator = Orchestrator(conf)
-    await orchestrator.run(websocket)
+
+    playback_task = asyncio.create_task(orchestrator.run(websocket))
+
+    try:
+        await orchestrator.register_event_listeners(websocket)
+    finally:
+        playback_task.cancel()
+        await asyncio.gather(playback_task, return_exceptions=True)

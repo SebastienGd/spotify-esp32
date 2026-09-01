@@ -2,15 +2,17 @@ import asyncio
 from logging import getLogger
 from pathlib import Path
 
+from fastapi import WebSocket
 import numpy as np
 from omegaconf import DictConfig
 
-from app.constants import PollDelay
+from app.constants import PollDelay, SpotifyEvent
 from app.display_drawer import DisplayDrawer
 from app.face_extractor import FaceExtractor
 from app.pixel_art import PixelArt
 from app.spotify import Spotify
 from domain.spotify import SpotifyPlaybackState
+
 
 logger = getLogger(__name__)
 
@@ -24,6 +26,27 @@ class Orchestrator:
         self._pixel_art = PixelArt()
         self._face_extractor = FaceExtractor(self._model_path)
         self._display_drawer = DisplayDrawer(self._spotify, self._pixel_art, conf.display)
+
+    async def register_event_listeners(self, websocket: WebSocket) -> None:
+        while True:
+            event_data = await websocket.receive_json()
+            await self._handle_websocket_event(event_data["event"])
+
+    async def _handle_websocket_event(self, event_data: str) -> None:
+        """Dispatch every client WebSocket event from one place."""
+        match SpotifyEvent(event_data):
+            case SpotifyEvent.NEXT_SONG:
+                logger.info("Next song event received")
+                await self._spotify.next_track()
+            case SpotifyEvent.PREVIOUS_SONG:
+                logger.info("Previous song event received")
+                await self._spotify.previous_track()
+            case SpotifyEvent.PAUSE_SONG:
+                logger.info("Pause song event received")
+                await self._spotify.pause()
+            case SpotifyEvent.PLAY_SONG:
+                logger.info("Play song event received")
+                await self._spotify.play()
 
     async def run(self, websocket) -> None:
         while True:

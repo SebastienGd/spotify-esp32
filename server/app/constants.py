@@ -27,3 +27,10 @@ class FacePadding(float, Enum):
     BOTTOM = 0.1
     LEFT = 0.2
     RIGHT = 0.2
+
+
+class SpotifyEvent(str, Enum):
+    NEXT_SONG = "next_song"
+    PREVIOUS_SONG = "previous_song"
+    PAUSE_SONG = "pause_song"
+    PLAY_SONG = "play_song"

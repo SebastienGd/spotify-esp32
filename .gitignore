@@ -1,2 +1,3 @@
 /esp32
 .ds_store
+main/secrets.h

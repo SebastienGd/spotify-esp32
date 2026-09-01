@@ -81,6 +81,12 @@ class Spotify:
         data = response.json()
         return SpotifyToken(**data)
 
+    async def _refresh_and_store_access_token(self) -> None:
+        refreshed_token = await self._refresh_access_token()
+        self.conf.spotify.access_token = refreshed_token.access_token
+        if refreshed_token.refresh_token:
+            self.conf.spotify.refresh_token = refreshed_token.refresh_token
+
     async def fetch_spotify_playback_state(self) -> SpotifyPlaybackState | None:
         async with httpx.AsyncClient() as client:
             r = await client.get(
@@ -90,10 +96,7 @@ class Spotify:
             )
 
             if r.status_code == fastapi.status.HTTP_401_UNAUTHORIZED:
-                refreshed_token = await self._refresh_access_token()
-                self.conf.spotify.access_token = refreshed_token.access_token
-                if refreshed_token.refresh_token:
-                    self.conf.spotify.refresh_token = refreshed_token.refresh_token
+                await self._refresh_and_store_access_token()
                 return await self.fetch_spotify_playback_state()
 
             r.raise_for_status()
@@ -143,37 +146,35 @@ class Spotify:
         album = SpotifyAlbum(**r.json()["album"])
         return album.images[0].url if album.images else None
 
-    async def next_track(self):
+    async def _send_player_command(self, method: str, url: str) -> None:
         async with httpx.AsyncClient() as client:
-            response = await client.post(
-                SpotifyUrl.NEXT_TRACK.value,
+            response = await client.request(
+                method,
+                url,
                 headers={"Authorization": f"Bearer {self.conf.spotify.access_token}"},
             )
+
+            if response.status_code == fastapi.status.HTTP_401_UNAUTHORIZED:
+                await self._refresh_and_store_access_token()
+                response = await client.request(
+                    method,
+                    url,
+                    headers={"Authorization": f"Bearer {self.conf.spotify.access_token}"},
+                )
+
             response.raise_for_status()
 
-    async def previous_track(self):
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                SpotifyUrl.PREVIOUS_TRACK.value,
-                headers={"Authorization": f"Bearer {self.conf.spotify.access_token}"},
-            )
-            response.raise_for_status()
+    async def next_track(self) -> None:
+        await self._send_player_command("POST", SpotifyUrl.NEXT_TRACK.value)
 
-    async def pause(self):
-        async with httpx.AsyncClient() as client:
-            response = await client.put(
-                SpotifyUrl.PAUSE.value,
-                headers={"Authorization": f"Bearer {self.conf.spotify.access_token}"},
-            )
-            response.raise_for_status()
+    async def previous_track(self) -> None:
+        await self._send_player_command("POST", SpotifyUrl.PREVIOUS_TRACK.value)
 
-    async def play(self):
-        async with httpx.AsyncClient() as client:
-            response = await client.put(
-                SpotifyUrl.PLAY.value,
-                headers={"Authorization": f"Bearer {self.conf.spotify.access_token}"},
-            )
-            response.raise_for_status()
+    async def pause(self) -> None:
+        await self._send_player_command("PUT", SpotifyUrl.PAUSE.value)
+
+    async def play(self) -> None:
+        await self._send_player_command("PUT", SpotifyUrl.PLAY.value)
 
     @property
     def artist(self) -> SpotifyArtistTrackItem | None:

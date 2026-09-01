@@ -1,3 +1,7 @@
-/esp32
 .ds_store
 main/secrets.h
+secrets.h
+build/
+managed_components/
+sdkconfig.old
+.vscode/

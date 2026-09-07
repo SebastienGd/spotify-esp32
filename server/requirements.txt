@@ -1,12 +1,10 @@
-fastapi
-# fastapi["standard"]
-dotenv
+fastapi[standard]
 httpx
-onnxruntime 
-numpy
-opencv-python-headless
-pathlib
-insightface
-pillow
 omegaconf
-ruff
+pydantic
+python-dotenv
+insightface
+numpy
+onnxruntime
+opencv-python-headless
+pillow

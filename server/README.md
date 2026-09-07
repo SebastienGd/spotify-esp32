@@ -9,7 +9,7 @@ From this directory:
 ```sh
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt uvicorn
+pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -26,5 +26,4 @@ written to `.env` automatically.
 ## Debugging
 
 - Open `server/playback_state.jpeg` to inspect the most recently rendered OLED frame.
-- Watch the Uvicorn logs for Spotify/API errors and display renders.
-- The ESP32 must use your computer's LAN IP in its WebSocket URL; `localhost` refers to the ESP32 itself.
+- Watch the logs for Spotify/API errors and display renders.

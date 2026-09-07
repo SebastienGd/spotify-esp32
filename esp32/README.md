@@ -25,18 +25,23 @@ Connect each normally-open button between the listed GPIO and GND; the firmware 
 
 ## Configure and flash
 
-Create `main/secrets.h` (it is ignored by Git):
+Copy the example environment file and fill in the values. The WebSocket URL must use the
+LAN address of the computer running FastAPI.
 
-```cpp
-#define WIFI_SSID "your-wifi-name"
-#define WIFI_PASS "your-wifi-password"
+```sh
+cp .env.example .env
 ```
 
-In `main/websocket.cpp`, change `WEBSOCKET_URI` to the LAN address of the computer/server running FastAPI, for example:
+Load the environment before every fresh CMake configuration or build. With `zsh`/`bash`:
 
-```cpp
-#define WEBSOCKET_URI "ws://192.168.1.50:8000/ws"
+```sh
+set -a
+source .env
+set +a
 ```
+
+The required variables are embedded in the firmware at build time and are never
+read from the ESP32 runtime environment.
 
 From this directory, with the ESP-IDF environment loaded:
 

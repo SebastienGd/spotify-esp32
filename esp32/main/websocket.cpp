@@ -1,9 +1,8 @@
 #include "websocket.h"
 
+#include "config.h"
 #include "esp_log.h"
 #include <cstring>
-
-#define WEBSOCKET_URI "ws://192.168.0.159:8000/ws"
 
 static const char *TAG = "websocket";
 

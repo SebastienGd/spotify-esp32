@@ -33,7 +33,10 @@ pip install -r requirements.txt
 fastapi run main.py --host 0.0.0.0 --port 8000
 ```
 
-Visit `http://localhost:8000/login` to authorize Spotify. Configure the ESP32 Wi-Fi credentials and server address in `esp32/main/secrets.h` and `esp32/main/websocket.cpp`, then build and flash it with ESP-IDF:
+Visit `http://localhost:8000/login` to authorize Spotify. Copy `esp32/.env.example` to
+`esp32/.env`, configure its Wi-Fi and server values, and load it before building the firmware.
+See the [firmware configuration guide](esp32/README.md#configure-and-flash) for the required
+environment variables. Then build and flash it with ESP-IDF:
 
 ```sh
 idf.py build flash monitor

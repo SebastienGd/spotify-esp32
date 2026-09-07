@@ -13,14 +13,15 @@ pip install -r requirements.txt uvicorn
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Create a `.env` file with Spotify application credentials:
+Create a `.env` file from the example and add your Spotify application credentials:
 
-```dotenv
-SPOTIFY_CLIENT_ID=...
-SPOTIFY_API_KEY=...
+```sh
+cp .env.example .env
 ```
 
-Open `http://127.0.0.1:8000/login` to authorize Spotify. The access and refresh tokens are then written to `.env` automatically.
+Set the Spotify app redirect URI to `http://127.0.0.1:8000/callback`, then open
+`http://127.0.0.1:8000/login` to authorize Spotify. The access and refresh tokens are
+written to `.env` automatically.
 
 ## Debugging
 

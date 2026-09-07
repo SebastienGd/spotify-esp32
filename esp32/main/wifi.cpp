@@ -3,9 +3,9 @@
 #include <cstring>
 
 #include "app_events.h"
+#include "config.h"
 #include "esp_log.h"
 #include "esp_netif.h"
-#include "secrets.h"
 
 static const char *TAG = "wifi";
 

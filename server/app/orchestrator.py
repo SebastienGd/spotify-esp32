@@ -3,13 +3,11 @@ from logging import getLogger
 from pathlib import Path
 
 from fastapi import WebSocket
-import numpy as np
 from omegaconf import DictConfig
 
 from app.constants import PollDelay, SpotifyEvent
 from app.display_drawer import DisplayDrawer
-from app.face_extractor import FaceExtractor
-from app.pixel_art import PixelArt
+from app.artwork.factory import create_artwork_provider, create_pixel_art
 from app.spotify import Spotify
 from domain.spotify import SpotifyPlaybackState
 
@@ -19,12 +17,10 @@ logger = getLogger(__name__)
 
 class Orchestrator:
     def __init__(self, conf: DictConfig):
-        self._model_path = Path(__file__).parents[1] / "models" / conf.model_name
-
         self.conf = conf
         self._spotify = Spotify(conf)
-        self._pixel_art = PixelArt()
-        self._face_extractor = FaceExtractor(self._model_path)
+        self._pixel_art = create_pixel_art(conf)
+        self._artwork = create_artwork_provider(conf, self._spotify, self._pixel_art)
         self._display_drawer = DisplayDrawer(self._spotify, self._pixel_art, conf.display)
 
     async def register_event_listeners(self, websocket: WebSocket) -> None:
@@ -71,30 +67,9 @@ class Orchestrator:
             await self._render_display(websocket)
 
     async def _resolve_playback_art_image(self, playback_state: SpotifyPlaybackState):
-        current_artist = playback_state.item.artists[0]
-        logger.info(f"New artist detected: {current_artist.name}")
+        return await self._artwork.resolve(playback_state)
 
-        artist_images = await self._spotify.fetch_artist_images(current_artist.id)
-
-        track_image = await self._spotify.fetch_track_image(playback_state.item.id)
-
-        if not artist_images:
-            logger.warning("No artist images found, falling back to track image")
-            return track_image
-
-        image = await self._pixel_art.load_image_from_url(artist_images[0])
-
-        faces = self._face_extractor.extract_faces(image)
-
-        if faces:
-            logger.info(f"Detected {len(faces)} face(s)")
-            return faces[0]
-
-        logger.warning("No faces detected in artist image, falling back to track image")
-
-        return track_image
-
-    async def _generate_pixel_art(self, image: str | np.ndarray | None) -> None:
+    async def _generate_pixel_art(self, image) -> None:
         if image is None:
             return
 

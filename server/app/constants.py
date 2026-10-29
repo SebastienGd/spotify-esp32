@@ -34,3 +34,13 @@ class SpotifyEvent(str, Enum):
     PREVIOUS_SONG = "previous_song"
     PAUSE_SONG = "pause_song"
     PLAY_SONG = "play_song"
+    
+    
+class ArtworkMode(str, Enum):
+    BASIC = "basic"
+    FACES = "faces"
+    
+    
+class ArtworkSize(int, Enum):
+    WIDTH = 64
+    HEIGHT = 64

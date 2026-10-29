@@ -1,6 +1,9 @@
 # Server
 
-The FastAPI server reads Spotify playback, finds a face in the current artist's image when possible, renders a 128×64 monochrome frame, and sends it to the ESP32 at `ws://<server>:8000/ws`. If no artist face is found, it uses the track's album artwork instead.
+The FastAPI server reads Spotify playback, renders a 128×64 monochrome frame, and
+sends it to the ESP32 at `ws://<server>:8000/ws`. By default it uses lightweight
+album artwork rendering. Optional `faces` mode detects a face in the artist's
+image, falling back to album artwork when no face is available.
 
 ## Start
 

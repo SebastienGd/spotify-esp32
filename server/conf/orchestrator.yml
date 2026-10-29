@@ -1,3 +1,4 @@
+artwork_mode: ${oc.env:ARTWORK_MODE,basic}
 model_name: scrfd_2.5g_bnkps.onnx
 
 display:

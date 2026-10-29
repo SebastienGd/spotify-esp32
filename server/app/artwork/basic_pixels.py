@@ -3,7 +3,7 @@ from pathlib import Path
 
 import httpx
 from PIL import Image, ImageOps
-from server.app.constants import ArtworkSize
+from app.constants import ArtworkSize
 
 
 class PixelArt:

@@ -1,9 +1,14 @@
-import numpy as np
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from omegaconf import DictConfig
 from PIL import Image, ImageDraw, ImageFont
 
-from app.pixel_art import PixelArt
 from app.spotify import Spotify
+
+if TYPE_CHECKING:
+    from app.pixel_art import PixelArt
 
 
 class DisplayDrawer:
@@ -41,7 +46,7 @@ class DisplayDrawer:
         if bitmap is None:
             return image
 
-        face = Image.fromarray(bitmap)
+        face = bitmap if isinstance(bitmap, Image.Image) else Image.fromarray(bitmap)
 
         if face.size != (self.face_width, self.face_height):
             face = face.resize(
@@ -212,9 +217,8 @@ class DisplayDrawer:
 
     @staticmethod
     def to_bytes(image: Image.Image) -> bytes:
-        bitmap = (np.asarray(image.convert("1")) > 0).astype(np.uint8)
-        packed = np.packbits(bitmap, axis=1, bitorder="little")
-        return packed.tobytes()
+        reverse_bits = bytes(int(f"{value:08b}"[::-1], 2) for value in range(256))
+        return image.convert("1").tobytes().translate(reverse_bits)
 
     def advance_scroll(self) -> None:
         self._scroll_offset += 1
